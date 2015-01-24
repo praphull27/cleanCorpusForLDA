@@ -1,12 +1,12 @@
 from bs4 import BeautifulSoup
-from nltk.stem.snowball import SnowballStemmer
+# from nltk.stem.snowball import SnowballStemmer
 import re
 import os
-import json
+# import json
 import gc
 from collections import OrderedDict
 
-stemmer = SnowballStemmer("english")
+# stemmer = SnowballStemmer("english")
 
 stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards', 'again', 
 'against', 'all', 'almost', 'alone', 'along', 'already', 'also', 'although', 
@@ -48,12 +48,12 @@ stopwords = ['a', 'about', 'above', 'across', 'after', 'afterwards', 'again',
 'within', 'without', 'would', 'yet', 'you', 'your', 'yours', 'yourself', 
 'yourselves', 'the']
 
-stopwords_single = [stemmer.stem(word) for word in stopwords]
-stopwords.extend(stopwords_single)
-stopwords = sorted(list(set(stopwords)))
+# stopwords_single = [stemmer.stem(word) for word in stopwords]
+# stopwords.extend(stopwords_single)
+# stopwords = sorted(list(set(stopwords)))
 
 dict_freq_filtered = {}
-dict_freq_cleaned = {}
+# dict_freq_cleaned = {}
 
 def read_clean_print (file_name):
 	xml_file_handle = open(file_name, 'rb')
@@ -68,14 +68,14 @@ def read_clean_print (file_name):
 	xml_file_text = (xml_file_text.strip()).lower()
 	xml_file_text_tokenized = xml_file_text.split()
 
-	xml_file_filtered_words = [word for word in xml_file_text_tokenized if not stemmer.stem(word) in stopwords]
-	xml_file_filtered_words = [word for word in xml_file_filtered_words if not word in stopwords]
+	xml_file_filtered_words = [word for word in xml_file_text_tokenized if not word in stopwords]
+	# xml_file_filtered_words = [word for word in xml_file_filtered_words if not stemmer.stem(word) in stopwords]
 
-	for word in xml_file_text_tokenized:
-		if word in dict_freq_cleaned:
-			dict_freq_cleaned[word] += 1
-		else:
-			dict_freq_cleaned[word] = 1
+	# for word in xml_file_text_tokenized:
+	# 	if word in dict_freq_cleaned:
+	# 		dict_freq_cleaned[word] += 1
+	# 	else:
+	# 		dict_freq_cleaned[word] = 1
 
 	for word in xml_file_filtered_words:
 		if word in dict_freq_filtered:
@@ -83,44 +83,51 @@ def read_clean_print (file_name):
 		else:
 			dict_freq_filtered[word] = 1
 
-	return (" ".join(xml_file_filtered_words), " ".join(xml_file_text_tokenized))
+	# return (" ".join(xml_file_filtered_words), " ".join(xml_file_text_tokenized))
+	return (" ".join(xml_file_filtered_words))
+
+def write_count ():
+	out_handle_filtered_count = open("nyt_courpus_without_stopwords_count.txt", 'wb')
+	# out_handle_cleaned_count = open("nyt_courpus_with_stopwords_txt.txt", 'wb')
+
+	d = OrderedDict(sorted(dict_freq_filtered.items(), key=lambda t: t[1], reverse=True))
+
+	for item in d.items():
+		out_handle_filtered_count.write(item[0] + ' : ' + str(item[1]) + '\n')
+
+	# d = OrderedDict(sorted(dict_freq_cleaned.items(), key=lambda t: t[1], reverse=True))
+
+	# for item in d.items():
+	# 	out_handle_cleaned_count.write(item[0] + ' : ' + str(item[1]) + '\n')
+
+	out_handle_filtered_count.close()
+	# out_handle_cleaned_count.close()
+
 
 #read_clean_print('/Users/praphull/Desktop/msProject/nyt_corpus/1987/01/01/0000000.xml')
 
 out_handle_filtered = open("nyt_courpus_without_stopwords.txt", 'wb')
-out_handle_cleaned = open("nyt_courpus_with_stopwords.txt", 'wb')
+# out_handle_cleaned = open("nyt_courpus_with_stopwords.txt", 'wb')
 
 file_count = 0
 
-for root, dirs, files in os.walk("/Users/praphull/Desktop/msProject/nyt_corpus/", topdown=True):
+for root, dirs, files in os.walk("/Users/praphull/Desktop/msProject/nyt_corpus", topdown=True):
 	for name in files:
 		if re.search(r'\.xml$', name):
 			file_count += 1
-			(filered, cleaned) = read_clean_print(os.path.join(root, name))
-			out_handle_filtered.write(filered + "\n")
-			out_handle_cleaned.write(cleaned + "\n")
-			if file_count % 1000 == 0:
+			# (filered, cleaned) = read_clean_print(os.path.join(root, name))
+			filtered = read_clean_print(os.path.join(root, name))
+			out_handle_filtered.write(filtered + "\n")
+			# out_handle_cleaned.write(cleaned + "\n")
+			if file_count % 10000 == 0:
 				print file_count
+				write_count()
+				gc.collect()
 			else:
-				if file_count % 100 == 0:
+				if file_count % 1000 == 0:
 					print '.'
-			gc.collect()
 
 out_handle_filtered.close()
-out_handle_cleaned.close()
+# out_handle_cleaned.close()
 
-out_handle_filtered = open("nyt_courpus_without_stopwords_count.txt", 'wb')
-out_handle_cleaned = open("nyt_courpus_with_stopwords_txt.txt", 'wb')
-
-d = OrderedDict(sorted(dict_freq_filtered.items(), key=lambda t: t[1], reverse=True))
-
-for item in d.items():
-	out_handle_filtered.write(item[0] + ' : ' + str(item[1]) + '\n')
-
-d = OrderedDict(sorted(dict_freq_cleaned.items(), key=lambda t: t[1], reverse=True))
-
-for item in d.items():
-	out_handle_cleaned.write(item[0] + ' : ' + str(item[1]) + '\n')
-
-out_handle_filtered.close()
-out_handle_cleaned.close()
+write_count()
