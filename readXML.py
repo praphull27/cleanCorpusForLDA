@@ -68,7 +68,8 @@ def read_clean_print (file_name):
 	xml_file_text = (xml_file_text.strip()).lower()
 	xml_file_text_tokenized = xml_file_text.split()
 
-	xml_file_filtered_words = [word for word in xml_file_text_tokenized if not word in stopwords]
+	xml_file_filtered_words = [word for word in xml_file_text_tokenized if len(word) >=3]
+	xml_file_filtered_words = [word for word in xml_file_filtered_words if not word in stopwords]
 	# xml_file_filtered_words = [word for word in xml_file_filtered_words if not stemmer.stem(word) in stopwords]
 
 	# for word in xml_file_text_tokenized:
@@ -122,7 +123,7 @@ for root, dirs, files in os.walk("/Users/praphull/Desktop/msProject/nyt_corpus",
 			if file_count % 10000 == 0:
 				print file_count
 				write_count()
-				gc.collect()
+				# gc.collect()
 			else:
 				if file_count % 1000 == 0:
 					print '.'
