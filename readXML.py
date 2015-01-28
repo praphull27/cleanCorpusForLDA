@@ -112,7 +112,7 @@ out_handle_filtered = open("nyt_courpus_without_stopwords.txt", 'wb')
 
 file_count = 0
 
-for root, dirs, files in os.walk("/Users/praphull/Desktop/msProject/nyt_corpus", topdown=True):
+for root, dirs, files in os.walk("/Users/praphull/Desktop/msProject/nyt_corpus/1987/01/01", topdown=True):
 	for name in files:
 		if re.search(r'\.xml$', name):
 			file_count += 1
